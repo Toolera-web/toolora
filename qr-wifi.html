@@ -1,0 +1,199 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador de QR Wi-Fi gratis | Toolora</title>
+<meta name="description" content="Crea un código QR para compartir tu Wi-Fi. Permite conectarse a tu red escaneando el código con el móvil.">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#929292;color:#111}
+header{background:#171717;padding:18px 7%;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px;color:white;font-size:23px;font-weight:bold;text-decoration:none}
+.logo-icon{background:#D6FF36;color:#111;width:35px;height:35px;border-radius:9px;display:grid;place-items:center}
+.back{color:white;text-decoration:none;font-size:14px}
+main{max-width:720px;margin:55px auto;padding:0 18px}
+.card{background:white;border-radius:18px;padding:35px;box-shadow:0 8px 25px #00000012}
+h1{font-size:30px;margin:0 0 10px}
+.description{color:#666;line-height:1.5;margin-bottom:28px}
+.field{margin-bottom:19px}
+.field label{display:block;font-size:14px;font-weight:bold;margin-bottom:9px}
+.field input,.field select{width:100%;padding:14px;border:2px solid #e5e5e5;border-radius:9px;font-size:16px;background:white}
+.field input:focus,.field select:focus{outline:2px solid #D6FF36;border-color:#b0d600}
+.password-wrap{display:flex;gap:8px}
+.password-wrap input{flex:1;min-width:0}
+.show-password{background:#eee;border:0;border-radius:9px;padding:0 13px;cursor:pointer}
+.option{display:flex;align-items:center;gap:9px;font-size:14px;margin:8px 0 22px;color:#444}
+.option input{width:17px;height:17px;accent-color:#b0d600}
+.generate{width:100%;padding:15px;background:#D6FF36;color:#111;font-size:16px;border:0;border-radius:10px;font-weight:bold;cursor:pointer}
+.result{display:none;margin-top:28px;text-align:center}
+.qr-box{display:inline-block;background:white;padding:15px;border:1px solid #eee;border-radius:12px;max-width:100%}
+#qrcode img,#qrcode canvas{max-width:100%;height:auto}
+.actions{display:flex;gap:10px;margin-top:18px}
+.actions button{flex:1;padding:14px;border:0;border-radius:9px;font-weight:bold;cursor:pointer}
+.download{background:#D6FF36}
+.clear{background:#eee}
+.error{color:#b00020;font-size:14px;margin-top:12px}
+.note{background:#f4f4f4;border-radius:10px;padding:14px;margin-top:20px;font-size:13px;color:#555;line-height:1.5}
+footer{text-align:center;color:#333;font-size:13px;padding:25px}
+@media(max-width:520px){.card{padding:24px 19px}h1{font-size:25px}main{margin:30px auto}.actions{flex-direction:column}}
+</style>
+</head>
+<body>
+<header>
+<a class="logo" href="/"><span class="logo-icon">T</span> Toolora</a>
+<a class="back" href="/">← Volver a herramientas</a>
+</header>
+
+<main>
+<div class="card">
+<h1>Generador de QR para Wi-Fi</h1>
+<p class="description">Comparte tu red Wi-Fi fácilmente. Introduce los datos de tu conexión y crea un código QR para que otras personas puedan conectarse escaneándolo.</p>
+
+<div class="field">
+<label for="ssid">Nombre de la red Wi-Fi</label>
+<input id="ssid" type="text" placeholder="Ejemplo: MiWiFi">
+</div>
+
+<div class="field">
+<label for="password">Contraseña del Wi-Fi</label>
+<div class="password-wrap">
+<input id="password" type="password" placeholder="Escribe tu contraseña">
+<button class="show-password" id="showPassword" type="button">Ver</button>
+</div>
+</div>
+
+<div class="field">
+<label for="security">Tipo de seguridad</label>
+<select id="security">
+<option value="WPA">WPA / WPA2 / WPA3</option>
+<option value="WEP">WEP</option>
+<option value="nopass">Red abierta (sin contraseña)</option>
+</select>
+</div>
+
+<label class="option">
+<input type="checkbox" id="hidden">
+Mi red Wi-Fi está oculta
+</label>
+
+<button class="generate" id="generate" type="button">Generar código QR</button>
+<p class="error" id="error" aria-live="polite"></p>
+
+<section class="result" id="result">
+<h2>¡Tu QR está listo!</h2>
+<div class="qr-box">
+<div id="qrcode"></div>
+</div>
+<div class="actions">
+<button class="download" id="download" type="button">Descargar QR en PNG</button>
+<button class="clear" id="clear" type="button">Crear otro</button>
+</div>
+<p class="note">Escanea este código con la cámara de un móvil compatible para conectarte a la red. La contraseña queda incluida en el QR: compártelo solo con personas de confianza.</p>
+</section>
+</div>
+</main>
+
+<footer>Toolora · Herramientas gratuitas y fáciles de usar</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+let currentCanvas = null;
+
+function escapeWifi(value) {
+  return value.replace(/([\\;,:"])/g, "\\$1");
+}
+
+$("showPassword").addEventListener("click", () => {
+  const input = $("password");
+  const showing = input.type === "text";
+  input.type = showing ? "password" : "text";
+  $("showPassword").textContent = showing ? "Ver" : "Ocultar";
+});
+
+$("security").addEventListener("change", () => {
+  const open = $("security").value === "nopass";
+  $("password").disabled = open;
+  if (open) $("password").value = "";
+});
+
+$("generate").addEventListener("click", () => {
+  const ssid = $("ssid").value;
+  const password = $("password").value;
+  const security = $("security").value;
+
+  $("error").textContent = "";
+  $("result").style.display = "none";
+
+  if (!ssid.trim()) {
+    $("error").textContent = "Introduce el nombre de tu red Wi-Fi.";
+    return;
+  }
+
+  if (security !== "nopass" && !password) {
+    $("error").textContent = "Introduce la contraseña de tu Wi-Fi.";
+    return;
+  }
+
+  if (!window.QRCode) {
+    $("error").textContent = "No se ha podido cargar el generador. Comprueba tu conexión e inténtalo de nuevo.";
+    return;
+  }
+
+  const wifiText = security === "nopass"
+    ? `WIFI:T:nopass;S:${escapeWifi(ssid)};H:${$("hidden").checked};;`
+    : `WIFI:T:${security};S:${escapeWifi(ssid)};P:${escapeWifi(password)};H:${$("hidden").checked};;`;
+
+  $("qrcode").innerHTML = "";
+
+  try {
+    new QRCode($("qrcode"), {
+      text: wifiText,
+      width: 240,
+      height: 240,
+      colorDark: "#111111",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.H
+    });
+
+    $("result").style.display = "block";
+
+    setTimeout(() => {
+      currentCanvas = $("qrcode").querySelector("canvas");
+    }, 100);
+  } catch (error) {
+    $("error").textContent = "No se ha podido generar el QR. Comprueba los datos.";
+  }
+});
+
+$("download").addEventListener("click", () => {
+  const canvas = $("qrcode").querySelector("canvas");
+  if (!canvas) {
+    $("error").textContent = "Genera primero un código QR.";
+    return;
+  }
+
+  const link = document.createElement("a");
+  link.href = canvas.toDataURL("image/png");
+  link.download = "qr-wifi-toolora.png";
+  link.click();
+});
+
+$("clear").addEventListener("click", () => {
+  $("ssid").value = "";
+  $("password").value = "";
+  $("security").value = "WPA";
+  $("password").disabled = false;
+  $("hidden").checked = false;
+  $("password").type = "password";
+  $("showPassword").textContent = "Ver";
+  $("qrcode").innerHTML = "";
+  $("result").style.display = "none";
+  $("error").textContent = "";
+  currentCanvas = null;
+});
+</script>
+</body>
+</html>
