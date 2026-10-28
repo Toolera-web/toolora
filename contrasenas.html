@@ -1,0 +1,176 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador de contraseñas | Toolora</title>
+<meta name="description" content="Crea contraseñas seguras y aleatorias gratis. Personaliza su longitud y los caracteres que quieres incluir.">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#929292;color:#111}
+header{background:#171717;padding:18px 7%;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px;color:white;font-size:23px;font-weight:bold;text-decoration:none}
+.logo-icon{background:#D6FF36;color:#111;width:35px;height:35px;border-radius:9px;display:grid;place-items:center}
+.back{color:white;text-decoration:none;font-size:14px}
+main{max-width:720px;margin:55px auto;padding:0 18px}
+.card{background:white;border-radius:18px;padding:35px;box-shadow:0 8px 25px #00000012}
+h1{font-size:30px;margin:0 0 10px}
+.description{color:#666;line-height:1.5;margin-bottom:28px}
+.password-box{display:flex;gap:10px;margin-bottom:12px}
+#password{width:100%;min-width:0;padding:16px;border:2px solid #e5e5e5;border-radius:10px;font-size:17px;font-weight:bold}
+button{border:0;border-radius:10px;padding:14px 18px;font-weight:bold;cursor:pointer}
+.copy{background:#eee;color:#111}
+.generate{width:100%;background:#D6FF36;color:#111;font-size:16px;margin:15px 0 25px}
+label{font-weight:bold;font-size:14px}
+.length-row{display:flex;justify-content:space-between;align-items:center;margin:24px 0 12px}
+#lengthValue{background:#f0f0f0;padding:6px 12px;border-radius:7px;font-weight:bold}
+input[type=range]{width:100%;accent-color:#b0d600}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:17px;margin-top:25px}
+.option{display:flex;align-items:center;gap:10px;font-size:14px;color:#333}
+.option input{width:17px;height:17px;accent-color:#b0d600}
+.status{font-size:13px;color:#666;min-height:18px}
+.strength{margin-top:22px}
+.strength-bar{height:8px;background:#eee;border-radius:20px;overflow:hidden;margin-top:9px}
+.strength-fill{height:100%;width:0%;background:#D6FF36;transition:width .2s}
+footer{text-align:center;color:#333;font-size:13px;padding:25px}
+@media(max-width:520px){.card{padding:24px 19px}h1{font-size:25px}.options{grid-template-columns:1fr}main{margin:30px auto}.password-box{flex-wrap:wrap}.copy{width:100%}}
+</style>
+</head>
+<body>
+<header>
+<a class="logo" href="/"><span class="logo-icon">T</span> Toolora</a>
+<a class="back" href="/">← Volver a herramientas</a>
+</header>
+
+<main>
+<div class="card">
+<h1>Generador de contraseñas</h1>
+<p class="description">Crea contraseñas aleatorias y seguras en segundos. Elige la longitud y los caracteres que quieres utilizar.</p>
+
+<div class="password-box">
+<input id="password" type="text" readonly placeholder="Tu contraseña aparecerá aquí">
+<button class="copy" id="copyButton" type="button">Copiar</button>
+</div>
+<p class="status" id="status" aria-live="polite"></p>
+
+<div class="length-row">
+<label for="length">Longitud de la contraseña</label>
+<span id="lengthValue">16</span>
+</div>
+<input type="range" id="length" min="6" max="64" value="16">
+
+<div class="options">
+<label class="option"><input type="checkbox" id="lower" checked> Letras minúsculas (a-z)</label>
+<label class="option"><input type="checkbox" id="upper" checked> Letras mayúsculas (A-Z)</label>
+<label class="option"><input type="checkbox" id="numbers" checked> Números (0-9)</label>
+<label class="option"><input type="checkbox" id="symbols" checked> Símbolos (!@#$...)</label>
+<label class="option"><input type="checkbox" id="avoid"> Evitar caracteres parecidos</label>
+</div>
+
+<button class="generate" id="generate" type="button">Generar contraseña</button>
+
+<div class="strength">
+<label>Longitud seleccionada</label>
+<div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+</div>
+</div>
+</main>
+
+<footer>Toolora · Herramientas gratuitas y fáciles de usar</footer>
+
+<script>
+const password = document.getElementById("password");
+const length = document.getElementById("length");
+const lengthValue = document.getElementById("lengthValue");
+const status = document.getElementById("status");
+
+length.addEventListener("input", () => {
+  lengthValue.textContent = length.value;
+});
+
+function randomNumber(max) {
+  const limit = Math.floor(256 / max) * max;
+  const array = new Uint8Array(1);
+  let value;
+  do {
+    crypto.getRandomValues(array);
+    value = array[0];
+  } while (value >= limit);
+  return value % max;
+}
+
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = randomNumber(i + 1);
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+function generatePassword() {
+  const avoid = document.getElementById("avoid").checked;
+  const groups = [];
+
+  let lower = "abcdefghijklmnopqrstuvwxyz";
+  let upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  let numbers = "0123456789";
+  let symbols = "!@#$%&*+-=?";
+
+  if (avoid) {
+    lower = lower.replace(/[ilo]/g, "");
+    upper = upper.replace(/[IO]/g, "");
+    numbers = numbers.replace(/[01]/g, "");
+  }
+
+  if (document.getElementById("lower").checked) groups.push(lower);
+  if (document.getElementById("upper").checked) groups.push(upper);
+  if (document.getElementById("numbers").checked) groups.push(numbers);
+  if (document.getElementById("symbols").checked) groups.push(symbols);
+
+  if (groups.length === 0) {
+    status.textContent = "Selecciona al menos un tipo de carácter.";
+    password.value = "";
+    return;
+  }
+
+  const all = groups.join("");
+  const size = Number(length.value);
+  const result = [];
+
+  // Incluye al menos un carácter de cada grupo seleccionado.
+  for (const group of groups) {
+    result.push(group[randomNumber(group.length)]);
+  }
+
+  while (result.length < size) {
+    result.push(all[randomNumber(all.length)]);
+  }
+
+  password.value = shuffle(result).join("");
+  status.textContent = "Contraseña generada correctamente.";
+  document.getElementById("strengthFill").style.width =
+    Math.min(100, size / 64 * 100) + "%";
+}
+
+document.getElementById("generate").addEventListener("click", generatePassword);
+
+document.getElementById("copyButton").addEventListener("click", async () => {
+  if (!password.value) {
+    status.textContent = "Primero genera una contraseña.";
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(password.value);
+    status.textContent = "¡Contraseña copiada!";
+  } catch {
+    password.select();
+    status.textContent = "Selecciona y copia la contraseña manualmente.";
+  }
+});
+
+generatePassword();
+</script>
+</body>
+</html>
