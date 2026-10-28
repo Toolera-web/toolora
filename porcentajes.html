@@ -1,0 +1,170 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de porcentajes gratis | Toolora</title>
+<meta name="description" content="Calcula porcentajes, aumentos y descuentos fácilmente con la calculadora gratuita de Toolora.">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#929292;color:#111}
+header{background:#171717;padding:18px 7%;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px;color:white;font-size:23px;font-weight:bold;text-decoration:none}
+.logo-icon{background:#D6FF36;color:#111;width:35px;height:35px;border-radius:9px;display:grid;place-items:center}
+.back{color:white;text-decoration:none;font-size:14px}
+main{max-width:720px;margin:55px auto;padding:0 18px}
+.card{background:white;border-radius:18px;padding:35px;box-shadow:0 8px 25px #00000012}
+h1{font-size:30px;margin:0 0 10px}
+.description{color:#666;line-height:1.5;margin-bottom:28px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:25px}
+.tab{background:#f1f1f1;color:#333;padding:13px 8px;font-size:14px}
+.tab.active{background:#D6FF36;color:#111}
+.panel{display:none}
+.panel.active{display:block}
+.field{margin-bottom:19px}
+.field label{display:block;font-size:14px;font-weight:bold;margin-bottom:9px}
+.field input{width:100%;padding:14px;border:2px solid #e5e5e5;border-radius:9px;font-size:16px}
+.field input:focus{outline:2px solid #D6FF36;border-color:#b0d600}
+.calculate{width:100%;padding:15px;background:#D6FF36;color:#111;font-size:16px;margin-top:5px}
+.result{margin-top:22px;background:#f4f4f4;border-radius:12px;padding:20px;text-align:center}
+.result span{display:block;color:#666;font-size:14px;margin-bottom:8px}
+.result strong{font-size:28px;overflow-wrap:anywhere}
+.result small{display:block;color:#777;margin-top:7px}
+footer{text-align:center;color:#333;font-size:13px;padding:25px}
+@media(max-width:520px){.card{padding:24px 19px}h1{font-size:25px}main{margin:30px auto}.tab{font-size:12px}}
+</style>
+</head>
+<body>
+<header>
+<a class="logo" href="/"><span class="logo-icon">T</span> Toolora</a>
+<a class="back" href="/">← Volver a herramientas</a>
+</header>
+
+<main>
+<div class="card">
+<h1>Calculadora de porcentajes</h1>
+<p class="description">Calcula porcentajes, aumentos y descuentos de forma rápida y sencilla.</p>
+
+<div class="tabs">
+<button class="tab active" data-panel="percentage">Porcentaje de una cantidad</button>
+<button class="tab" data-panel="proportion">Qué porcentaje es</button>
+<button class="tab" data-panel="increase">Aumentar porcentaje</button>
+<button class="tab" data-panel="decrease">Reducir porcentaje</button>
+</div>
+
+<section class="panel active" id="percentage">
+<div class="field">
+<label for="p1">Porcentaje (%)</label>
+<input id="p1" type="number" step="any" placeholder="Ejemplo: 20">
+</div>
+<div class="field">
+<label for="n1">Cantidad</label>
+<input id="n1" type="number" step="any" placeholder="Ejemplo: 150">
+</div>
+<button class="calculate" data-calc="percentage">Calcular</button>
+<div class="result"><span>Resultado</span><strong id="r1">—</strong><small id="d1"></small></div>
+</section>
+
+<section class="panel" id="proportion">
+<div class="field">
+<label for="p2">Cantidad parcial</label>
+<input id="p2" type="number" step="any" placeholder="Ejemplo: 30">
+</div>
+<div class="field">
+<label for="n2">Cantidad total</label>
+<input id="n2" type="number" step="any" placeholder="Ejemplo: 150">
+</div>
+<button class="calculate" data-calc="proportion">Calcular</button>
+<div class="result"><span>Porcentaje</span><strong id="r2">—</strong><small id="d2"></small></div>
+</section>
+
+<section class="panel" id="increase">
+<div class="field">
+<label for="n3">Cantidad inicial</label>
+<input id="n3" type="number" step="any" placeholder="Ejemplo: 100">
+</div>
+<div class="field">
+<label for="p3">Porcentaje de aumento (%)</label>
+<input id="p3" type="number" step="any" placeholder="Ejemplo: 15">
+</div>
+<button class="calculate" data-calc="increase">Calcular</button>
+<div class="result"><span>Resultado final</span><strong id="r3">—</strong><small id="d3"></small></div>
+</section>
+
+<section class="panel" id="decrease">
+<div class="field">
+<label for="n4">Cantidad inicial</label>
+<input id="n4" type="number" step="any" placeholder="Ejemplo: 100">
+</div>
+<div class="field">
+<label for="p4">Porcentaje de reducción (%)</label>
+<input id="p4" type="number" step="any" placeholder="Ejemplo: 15">
+</div>
+<button class="calculate" data-calc="decrease">Calcular</button>
+<div class="result"><span>Resultado final</span><strong id="r4">—</strong><small id="d4"></small></div>
+</section>
+</div>
+</main>
+
+<footer>Toolora · Herramientas gratuitas y fáciles de usar</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+const number = id => Number($(id).value);
+const valid = (...ids) => ids.every(id => $(id).value.trim() !== "" && Number.isFinite(number(id)));
+
+function format(value) {
+  return new Intl.NumberFormat("es-ES", {
+    maximumFractionDigits: 6
+  }).format(value);
+}
+
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+    tab.classList.add("active");
+    $(tab.dataset.panel).classList.add("active");
+  });
+});
+
+document.querySelectorAll(".calculate").forEach(button => {
+  button.addEventListener("click", () => {
+    const type = button.dataset.calc;
+
+    if (type === "percentage") {
+      if (!valid("p1","n1")) return alert("Introduce las dos cantidades.");
+      const result = number("p1") / 100 * number("n1");
+      $("r1").textContent = format(result);
+      $("d1").textContent = `${format(number("p1"))}% de ${format(number("n1"))}`;
+    }
+
+    if (type === "proportion") {
+      if (!valid("p2","n2")) return alert("Introduce las dos cantidades.");
+      if (number("n2") === 0) return alert("La cantidad total no puede ser cero.");
+      const result = number("p2") / number("n2") * 100;
+      $("r2").textContent = format(result) + " %";
+      $("d2").textContent = `${format(number("p2"))} de ${format(number("n2"))}`;
+    }
+
+    if (type === "increase") {
+      if (!valid("n3","p3")) return alert("Introduce las dos cantidades.");
+      const initial = number("n3");
+      const change = initial * number("p3") / 100;
+      $("r3").textContent = format(initial + change);
+      $("d3").textContent = `Aumento: ${format(change)}`;
+    }
+
+    if (type === "decrease") {
+      if (!valid("n4","p4")) return alert("Introduce las dos cantidades.");
+      const initial = number("n4");
+      const change = initial * number("p4") / 100;
+      $("r4").textContent = format(initial - change);
+      $("d4").textContent = `Reducción: ${format(change)}`;
+    }
+  });
+});
+</script>
+</body>
+</html>
