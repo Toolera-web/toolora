@@ -1,0 +1,172 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de edad | Toolora</title>
+<meta name="description" content="Calcula tu edad exacta en años, meses y días. Descubre cuántos días faltan para tu próximo cumpleaños gratis.">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#929292;color:#111}
+header{background:#171717;padding:18px 7%;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px;color:white;font-size:23px;font-weight:bold;text-decoration:none}
+.logo-icon{background:#D6FF36;color:#111;width:35px;height:35px;border-radius:9px;display:grid;place-items:center}
+.back{color:white;text-decoration:none;font-size:14px}
+main{max-width:720px;margin:55px auto;padding:0 18px}
+.card{background:white;border-radius:18px;padding:35px;box-shadow:0 8px 25px #00000012}
+h1{font-size:30px;margin:0 0 10px}
+.description{color:#666;line-height:1.5;margin-bottom:28px}
+.field label{display:block;font-size:14px;font-weight:bold;margin-bottom:10px}
+.field input{width:100%;padding:15px;border:2px solid #e5e5e5;border-radius:9px;font-size:16px}
+.field input:focus{outline:2px solid #D6FF36;border-color:#b0d600}
+.calculate{width:100%;padding:15px;background:#D6FF36;color:#111;font-size:16px;margin-top:22px;border:0;border-radius:10px;font-weight:bold;cursor:pointer}
+.result{display:none;margin-top:28px}
+.result h2{font-size:19px;margin:0 0 16px}
+.age-main{background:#f4f4f4;border-radius:12px;padding:22px;text-align:center}
+.age-main strong{font-size:30px;display:block;line-height:1.4}
+.age-main span{font-size:14px;color:#666}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.stat{background:#f4f4f4;border-radius:10px;padding:17px;text-align:center}
+.stat strong{display:block;font-size:23px;margin-bottom:6px}
+.stat span{font-size:13px;color:#666}
+.birthday{margin-top:14px;background:#f4f4f4;padding:18px;border-radius:10px}
+.birthday strong{display:block;font-size:17px;margin-top:6px}
+.error{color:#b00020;font-size:14px;margin-top:12px}
+footer{text-align:center;color:#333;font-size:13px;padding:25px}
+@media(max-width:520px){.card{padding:24px 19px}h1{font-size:25px}main{margin:30px auto}.age-main strong{font-size:25px}}
+</style>
+</head>
+<body>
+<header>
+<a class="logo" href="/"><span class="logo-icon">T</span> Toolora</a>
+<a class="back" href="/">← Volver a herramientas</a>
+</header>
+
+<main>
+<div class="card">
+<h1>Calculadora de edad</h1>
+<p class="description">Introduce tu fecha de nacimiento y descubre tu edad exacta y cuánto falta para tu próximo cumpleaños.</p>
+
+<div class="field">
+<label for="birthDate">Fecha de nacimiento</label>
+<input type="date" id="birthDate">
+</div>
+
+<button class="calculate" id="calculate" type="button">Calcular mi edad</button>
+<p class="error" id="error" aria-live="polite"></p>
+
+<section class="result" id="result" aria-live="polite">
+<h2>Tu edad actual</h2>
+<div class="age-main">
+<strong id="exactAge">—</strong>
+<span>Años, meses y días</span>
+</div>
+
+<div class="stats">
+<div class="stat">
+<strong id="totalMonths">—</strong>
+<span>Meses vividos aproximadamente</span>
+</div>
+<div class="stat">
+<strong id="totalDays">—</strong>
+<span>Días vividos</span>
+</div>
+</div>
+
+<div class="birthday">
+<span>Tu próximo cumpleaños</span>
+<strong id="nextBirthday">—</strong>
+</div>
+</section>
+</div>
+</main>
+
+<footer>Toolora · Herramientas gratuitas y fáciles de usar</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+
+function makeDate(year, month, day) {
+  return new Date(Date.UTC(year, month, day));
+}
+
+function daysBetween(a, b) {
+  return Math.round((b - a) / 86400000);
+}
+
+function calculateAge() {
+  const value = $("birthDate").value;
+  $("error").textContent = "";
+  $("result").style.display = "none";
+
+  if (!value) {
+    $("error").textContent = "Selecciona tu fecha de nacimiento.";
+    return;
+  }
+
+  const [year, month, day] = value.split("-").map(Number);
+  const todayLocal = new Date();
+  const today = makeDate(
+    todayLocal.getFullYear(),
+    todayLocal.getMonth(),
+    todayLocal.getDate()
+  );
+  const birth = makeDate(year, month - 1, day);
+
+  if (birth > today) {
+    $("error").textContent = "La fecha de nacimiento no puede ser futura.";
+    return;
+  }
+
+  let years = today.getUTCFullYear() - year;
+  let months = today.getUTCMonth() - (month - 1);
+  let days = today.getUTCDate() - day;
+
+  if (days < 0) {
+    months--;
+    const previousMonth = makeDate(
+      today.getUTCFullYear(),
+      today.getUTCMonth(),
+      0
+    );
+    days += previousMonth.getUTCDate();
+  }
+
+  if (months < 0) {
+    years--;
+    months += 12;
+  }
+
+  const totalDays = daysBetween(birth, today);
+  const totalMonths = years * 12 + months;
+
+  let nextYear = today.getUTCFullYear();
+  let nextMonth = month - 1;
+  let nextDay = day;
+
+  const thisBirthday = makeDate(nextYear, nextMonth, nextDay);
+
+  if (thisBirthday <= today) nextYear++;
+
+  // Si nació el 29 de febrero, en años no bisiestos se usa el 28 de febrero.
+  const nextDate = makeDate(nextYear, nextMonth, nextDay);
+  const daysUntil = daysBetween(today, nextDate);
+
+  $("exactAge").textContent =
+    `${years} años, ${months} meses y ${days} días`;
+  $("totalMonths").textContent = totalMonths;
+  $("totalDays").textContent = totalDays.toLocaleString("es-ES");
+  $("nextBirthday").textContent =
+    daysUntil === 0
+      ? "¡Hoy es tu cumpleaños!"
+      : `Faltan ${daysUntil} días`;
+
+  $("result").style.display = "block";
+}
+
+$("calculate").addEventListener("click", calculateAge);
+$("birthDate").max = new Date().toISOString().split("T")[0];
+</script>
+</body>
+</html>
