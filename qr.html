@@ -1,0 +1,355 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Crea códigos QR gratis online a partir de cualquier texto o enlace y descárgalos en PNG.">
+  <title>Generador de códigos QR gratis | Toolora</title>
+
+  <style>
+    :root {
+      --background: #929292;
+      --white: #ffffff;
+      --dark: #171717;
+      --muted: #626262;
+      --accent: #d6ff36;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--background);
+      color: var(--dark);
+      min-height: 100vh;
+    }
+
+    header {
+      background: white;
+      padding: 18px 7%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--dark);
+      text-decoration: none;
+      font-size: 27px;
+      font-weight: 800;
+    }
+
+    .logo-mark {
+      width: 37px;
+      height: 37px;
+      background: var(--accent);
+      border-radius: 11px;
+      display: grid;
+      place-items: center;
+    }
+
+    .back {
+      color: var(--dark);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .container {
+      width: min(650px, 92%);
+      margin: 55px auto 75px;
+    }
+
+    .intro {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .tag {
+      display: inline-block;
+      background: var(--accent);
+      padding: 8px 14px;
+      border-radius: 30px;
+      font-size: 11px;
+      font-weight: 800;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: clamp(30px, 6vw, 43px);
+      margin-bottom: 14px;
+      letter-spacing: -1.5px;
+    }
+
+    .intro p {
+      color: #292929;
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    .panel {
+      background: white;
+      border-radius: 19px;
+      padding: 30px;
+      box-shadow: 0 8px 25px #00000012;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 15px;
+      border: 1px solid #dddddd;
+      border-radius: 11px;
+      font-family: inherit;
+      font-size: 15px;
+      resize: vertical;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: #8cae19;
+      box-shadow: 0 0 0 3px #d6ff3655;
+    }
+
+    .hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
+    .generate {
+      width: 100%;
+      margin-top: 20px;
+      padding: 15px;
+      border: none;
+      border-radius: 11px;
+      background: var(--accent);
+      color: var(--dark);
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .2s;
+    }
+
+    .generate:hover {
+      transform: translateY(-2px);
+    }
+
+    .result {
+      display: none;
+      margin-top: 27px;
+      text-align: center;
+      border-top: 1px solid #eeeeee;
+      padding-top: 25px;
+    }
+
+    .result h2 {
+      font-size: 20px;
+      margin-bottom: 18px;
+    }
+
+    #qrcode {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      background: white;
+      padding: 15px;
+      border: 1px solid #eeeeee;
+      border-radius: 12px;
+      max-width: 100%;
+    }
+
+    #qrcode img,
+    #qrcode canvas {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .download {
+      display: inline-block;
+      margin-top: 20px;
+      background: #202020;
+      color: white;
+      padding: 13px 22px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .download:hover {
+      background: #3c3c3c;
+    }
+
+    .message {
+      display: none;
+      color: #b00020;
+      font-size: 13px;
+      margin-top: 12px;
+    }
+
+    footer {
+      background: #202020;
+      color: white;
+      text-align: center;
+      padding: 25px 15px;
+      font-size: 13px;
+    }
+
+    footer span {
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    @media (max-width: 550px) {
+      header {
+        padding: 16px 20px;
+      }
+
+      .container {
+        margin-top: 35px;
+      }
+
+      .panel {
+        padding: 22px 17px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <a href="/" class="logo">
+      <span class="logo-mark">T</span>
+      Toolora
+    </a>
+
+    <a href="/" class="back">← Volver al inicio</a>
+  </header>
+
+  <main class="container">
+
+    <section class="intro">
+      <div class="tag">HERRAMIENTA GRATUITA</div>
+      <h1>Generador de códigos QR</h1>
+      <p>
+        Crea tu propio código QR en segundos.
+        Introduce un enlace o un texto y descárgalo gratis.
+      </p>
+    </section>
+
+    <section class="panel">
+      <label for="qrText">Introduce un enlace o texto</label>
+
+      <textarea
+        id="qrText"
+        placeholder="Por ejemplo: https://www.google.com"
+        maxlength="2000"
+      ></textarea>
+
+      <p class="hint">
+        Puedes introducir una página web, un mensaje o cualquier texto.
+      </p>
+
+      <button class="generate" id="generateBtn">
+        Generar código QR
+      </button>
+
+      <p class="message" id="errorMessage">
+        Escribe primero un enlace o un texto para crear tu código QR.
+      </p>
+
+      <div class="result" id="result">
+        <h2>¡Tu código QR está listo!</h2>
+
+        <div id="qrcode"></div>
+
+        <br>
+
+        <a class="download" id="downloadBtn" href="#" download="codigo-qr.png">
+          Descargar código QR
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p><span>Toolora</span> · Herramientas online gratuitas</p>
+    <p style="margin-top:8px;">© 2026 Toolora. Todos los derechos reservados.</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <script>
+    const generateBtn = document.getElementById("generateBtn");
+    const qrText = document.getElementById("qrText");
+    const result = document.getElementById("result");
+    const qrContainer = document.getElementById("qrcode");
+    const errorMessage = document.getElementById("errorMessage");
+    const downloadBtn = document.getElementById("downloadBtn");
+
+    generateBtn.addEventListener("click", function () {
+      const text = qrText.value.trim();
+
+      errorMessage.style.display = "none";
+
+      if (!text) {
+        errorMessage.style.display = "block";
+        result.style.display = "none";
+        return;
+      }
+
+      if (typeof QRCode === "undefined") {
+        errorMessage.textContent =
+          "No se ha podido cargar el generador. Comprueba tu conexión a Internet e inténtalo de nuevo.";
+        errorMessage.style.display = "block";
+        result.style.display = "none";
+        return;
+      }
+
+      qrContainer.innerHTML = "";
+
+      new QRCode(qrContainer, {
+        text: text,
+        width: 240,
+        height: 240,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      result.style.display = "block";
+
+      setTimeout(function () {
+        const canvas = qrContainer.querySelector("canvas");
+        const img = qrContainer.querySelector("img");
+
+        if (canvas) {
+          downloadBtn.href = canvas.toDataURL("image/png");
+        } else if (img) {
+          downloadBtn.href = img.src;
+        }
+      }, 100);
+    });
+  </script>
+
+</body>
+</html>
